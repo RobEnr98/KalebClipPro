@@ -244,7 +244,7 @@ namespace KalebClipPro
         private void BtnMdAlignRight_Click(object sender, RoutedEventArgs e) { CerrarPopups(); EjecutarFormato(EditingCommands.AlignRight); }
 
         // --- LISTAS Y SANGRÍAS ---
-private void BtnMdList_Click(object sender, RoutedEventArgs e) { CerrarPopups(); EjecutarFormato(EditingCommands.ToggleBullets); }
+        private void BtnMdList_Click(object sender, RoutedEventArgs e) { CerrarPopups(); EjecutarFormato(EditingCommands.ToggleBullets); }
         private void BtnMdListNum_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.AplicarListaNumeradaInteligente(_editorActual!); }
         private void BtnMdIndentInc_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.AplicarSangriaPersonalizada(_editorActual!, 1); }
         private void BtnMdIndentDec_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.AplicarSangriaPersonalizada(_editorActual!, -1); }
