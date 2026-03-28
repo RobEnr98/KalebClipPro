@@ -66,53 +66,50 @@ namespace KalebClipPro
             try 
             {
                 InitializeComponent();
-
-                TextBoxContainer.PreviewKeyDown += (s, e) => { if (_editorActual != null) Helpers.TableSurgeonHelper.SmartEditor_PreviewKeyDown(_editorActual, s, e); };
-                TextBoxContainer.PreviewMouseRightButtonUp += (s, e) => { if (_editorActual != null) Helpers.TableSurgeonHelper.MostrarMenuContextual(_editorActual, e, this); };
-
-                // 🌟 CONFIGURAR EL SERVICIO DE ACCIONES 🌟
-                _actionService = new ClipboardActionService(_sysManager);
-                _actionService.OnTextoInyectado = (texto) => _ultimoTextoInyectado = texto;
-                _actionService.OnEstadoCapturaCambiado = (estado) => _capturandoParaRecolector = estado;
-                _actionService.OnNotificarCambioTab = (color) => { TabRecolector.IsChecked = true; NotificarCambioTab(color); };
-                _actionService.OnActualizarContadorTab = () => { /* Asegúrate de que este método exista en otra parte de tu código, si no, bórralo aquí */ };
-                _actionService.OnAvanzarSet = () => {
-                    // CÓDIGO DEL HOTKEY 50 QUE MOVIMOS
-                    // (Asegúrate de que GuardarSlotsActuales() y demás existan en MainWindow)
-                    // GuardarSlotsActuales();
-                    var llaves = WorkflowActual.Sets.Keys.OrderBy(k => k).ToList();
-                    int indiceActual = llaves.IndexOf(_setActual);
-                    _setActual = llaves[(indiceActual + 1) % llaves.Count];
-                    // InicializarSlotsVacios();
-                    // ActualizarCheckVisualSets();
-                    NotificarCambioTab(Colors.Cyan);
-                };
+                ConfigurarServiciosYEventos();
+                InicializarDatos();
+                
+                this.Topmost = false;
+                _autoSaveTimer.Interval = TimeSpan.FromMilliseconds(350); 
+                _autoSaveTimer.Tick += AutoSaveTimer_Tick; 
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error fatal en el diseño:\n{ex.Message}\n\nDetalle:\n{ex.InnerException?.Message}", 
                                 "Error de WPF", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
-                return;
             }
+        }
 
-            // 1. Cargar el motor de datos JSON a través del servicio
+        private void ConfigurarServiciosYEventos()
+        {
+            TextBoxContainer.PreviewKeyDown += (s, e) => { if (_editorActual != null) Helpers.TableSurgeonHelper.SmartEditor_PreviewKeyDown(_editorActual, s, e); };
+            TextBoxContainer.PreviewMouseRightButtonUp += (s, e) => { if (_editorActual != null) Helpers.TableSurgeonHelper.MostrarMenuContextual(_editorActual, e, this); };
+
+            // 🌟 CONFIGURAR EL SERVICIO DE ACCIONES 🌟
+            _actionService = new ClipboardActionService(_sysManager);
+            _actionService.OnTextoInyectado = (texto) => _ultimoTextoInyectado = texto;
+            _actionService.OnEstadoCapturaCambiado = (estado) => _capturandoParaRecolector = estado;
+            _actionService.OnNotificarCambioTab = (color) => { TabRecolector.IsChecked = true; NotificarCambioTab(color); };
+            _actionService.OnActualizarContadorTab = () => { /* Asegúrate de que este método exista */ };
+            _actionService.OnAvanzarSet = () => {
+                var llaves = WorkflowActual.Sets.Keys.OrderBy(k => k).ToList();
+                int indiceActual = llaves.IndexOf(_setActual);
+                _setActual = llaves[(indiceActual + 1) % llaves.Count];
+                NotificarCambioTab(Colors.Cyan);
+            };
+        }
+
+        private void InicializarDatos()
+        {
             WorkflowActual = _workflowService.CargarWorkflowDesdeDisco();
-
-            // 2. Inicializar BD y Colecciones
             db.InicializarBaseDeDatos();
             ListaClips.ItemsSource = MisClips;
             ListaRecolector.ItemsSource = ClipsRecolector; 
             
-            // 3. Sincronizar UI
             SincronizarBotonesConDatos();
             InicializarSlotsVacios();
             CargarDatos();
-            
-            this.Topmost = false;
-
-            _autoSaveTimer.Interval = TimeSpan.FromMilliseconds(350); 
-            _autoSaveTimer.Tick += AutoSaveTimer_Tick; 
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -247,10 +244,10 @@ namespace KalebClipPro
         private void BtnMdAlignRight_Click(object sender, RoutedEventArgs e) { CerrarPopups(); EjecutarFormato(EditingCommands.AlignRight); }
 
         // --- LISTAS Y SANGRÍAS ---
-        private void BtnMdList_Click(object sender, RoutedEventArgs e) { CerrarPopups(); EjecutarFormato(EditingCommands.ToggleBullets); }
-        private void BtnMdListNum_Click(object sender, RoutedEventArgs e) { CerrarPopups(); AplicarListaNumeradaInteligente(_editorActual); }
-        private void BtnMdIndentInc_Click(object sender, RoutedEventArgs e) { CerrarPopups(); AplicarSangriaPersonalizada(_editorActual, 1); }
-        private void BtnMdIndentDec_Click(object sender, RoutedEventArgs e) { CerrarPopups(); AplicarSangriaPersonalizada(_editorActual, -1); }
+private void BtnMdList_Click(object sender, RoutedEventArgs e) { CerrarPopups(); EjecutarFormato(EditingCommands.ToggleBullets); }
+        private void BtnMdListNum_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.AplicarListaNumeradaInteligente(_editorActual!); }
+        private void BtnMdIndentInc_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.AplicarSangriaPersonalizada(_editorActual!, 1); }
+        private void BtnMdIndentDec_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.AplicarSangriaPersonalizada(_editorActual!, -1); }
 
         // --- INSERCIÓN COMPLEJA ---
         private void BtnMdQuote_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.InsertarCita(_editorActual!); }

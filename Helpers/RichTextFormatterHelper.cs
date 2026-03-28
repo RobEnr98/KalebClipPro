@@ -1,9 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
+using ColorCode;
+using ColorCode.Wpf;
+using ColorCode.Styling;
+using ColorCode.Common;
 
 namespace KalebClipPro.Helpers
 {
@@ -63,7 +70,6 @@ namespace KalebClipPro.Helpers
             dialog.Owner = ownerWindow; 
             var colorActualObj = editorActual.Selection.GetPropertyValue(TextElement.ForegroundProperty);
 
-            // Cálculo anti-zoom de Windows movido aquí
             Button? boton = senderBoton as Button;
             if (boton != null)
             {
@@ -105,6 +111,168 @@ namespace KalebClipPro.Helpers
             if (editorActual == null) return;
             editorActual.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, tamano);
             editorActual.Focus();
+        }
+
+        public static void AplicarInterlineado(RichTextBox editor, double alturaLinea, double espacioAbajo)
+        {
+            if (editor == null || editor.Selection.IsEmpty) return;
+
+            editor.BeginChange();
+
+            var bloquesSeleccionados = editor.Document.Blocks
+                .Where(b => editor.Selection.Contains(b.ContentStart) || 
+                            editor.Selection.Contains(b.ContentEnd));
+
+            foreach (var bloque in bloquesSeleccionados)
+            {
+                if (bloque is Paragraph p)
+                {
+                    p.LineHeight = alturaLinea;        
+                    p.Margin = new Thickness(0, 0, 0, espacioAbajo); 
+                }
+            }
+
+            editor.EndChange();
+        }
+
+        public static void AplicarColorCode(RichTextBox editor, string codigoCrudo)
+        {
+            if (editor == null || string.IsNullOrWhiteSpace(codigoCrudo)) return;
+
+            editor.BeginChange();
+            editor.Document.Blocks.Clear();
+
+            var miEstiloVibrante = ColorCode.Styling.StyleDictionary.DefaultDark;
+
+            ActualizarColor(miEstiloVibrante, ScopeName.Keyword, "#F92672");    
+            ActualizarColor(miEstiloVibrante, ScopeName.String, "#E6DB74");     
+            ActualizarColor(miEstiloVibrante, ScopeName.Comment, "#75715E");    
+            ActualizarColor(miEstiloVibrante, ScopeName.Number, "#AE81FF");     
+            ActualizarColor(miEstiloVibrante, ScopeName.PlainText, "#F8F8F2");  
+            
+            var formatter = new RichTextBoxFormatter(miEstiloVibrante);
+            Paragraph p = new Paragraph { Margin = new Thickness(0) };
+
+            formatter.FormatInlines(codigoCrudo, Languages.CSharp, p.Inlines);
+
+            editor.Document.Blocks.Add(p);
+            editor.EndChange();
+        }
+
+        public static void ActualizarColor(ColorCode.Styling.StyleDictionary dic, string scope, string hex)
+        {
+            if (dic.Contains(scope))
+            {
+                dic[scope].Foreground = hex;
+            }
+        }
+
+        public static int GetPreviousListNumber(RichTextBox? editor)
+        {
+            if (editor == null) return 0;
+
+            try 
+            {
+                TextPointer caret = editor.CaretPosition;
+                Block? currentBlock = caret.Paragraph;
+
+                if (currentBlock?.Parent is ListItem li && li.Parent is List parentList)
+                {
+                    currentBlock = parentList;
+                }
+
+                while (currentBlock != null)
+                {
+                    currentBlock = currentBlock.PreviousBlock;
+
+                    if (currentBlock is List listaPrevia && listaPrevia.MarkerStyle == TextMarkerStyle.Decimal)
+                    {
+                        return listaPrevia.StartIndex + listaPrevia.ListItems.Count - 1;
+                    }
+                }
+            } 
+            catch { }
+            
+            return 0;
+        }
+
+        public static void AplicarListaNumeradaInteligente(RichTextBox? editor)
+        {
+            if (editor == null) return;
+
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Keyboard.Focus(editor);
+                editor.Focus();
+
+                int ultimoNumero = GetPreviousListNumber(editor);
+
+                EditingCommands.ToggleNumbering.Execute(null, editor);
+
+                if (editor.CaretPosition.Paragraph?.Parent is ListItem listItem && listItem.Parent is List currentList)
+                {
+                    currentList.StartIndex = ultimoNumero > 0 ? ultimoNumero + 1 : 1;
+                }
+
+            }), DispatcherPriority.ApplicationIdle); 
+        }
+
+        public static void AplicarSangriaPersonalizada(RichTextBox? editor, int direccion)
+        {
+            if (editor == null) return;
+
+            editor.BeginChange();
+
+            TextSelection seleccion = editor.Selection;
+            List<Paragraph> parrafosAfectados = new List<Paragraph>();
+
+            if (seleccion.IsEmpty && editor.CaretPosition.Paragraph != null)
+            {
+                parrafosAfectados.Add(editor.CaretPosition.Paragraph);
+            }
+            else
+            {
+                foreach (Block block in editor.Document.Blocks)
+                {
+                    if (block is Paragraph p && (seleccion.Contains(p.ContentStart) || seleccion.Contains(p.ContentEnd)))
+                    {
+                        parrafosAfectados.Add(p);
+                    }
+                    else if (block is List lista)
+                    {
+                        foreach (ListItem li in lista.ListItems)
+                        {
+                            if (li.Blocks.FirstBlock is Paragraph lp && (seleccion.Contains(lp.ContentStart) || seleccion.Contains(lp.ContentEnd)))
+                            {
+                                parrafosAfectados.Add(lp);
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (Paragraph p in parrafosAfectados)
+            {
+                if (p.Parent is ListItem li)
+                {
+                    double nuevaSangria = li.Margin.Left + (direccion * 35);
+                    if (nuevaSangria < 0) nuevaSangria = 0;
+                    li.Margin = new Thickness(nuevaSangria, li.Margin.Top, li.Margin.Right, li.Margin.Bottom);
+                }
+                else
+                {
+                    double nuevaSangria = p.Margin.Left + (direccion * 35);
+                    if (nuevaSangria < 0) nuevaSangria = 0;
+                    p.Margin = new Thickness(nuevaSangria, p.Margin.Top, p.Margin.Right, p.Margin.Bottom);
+                }
+            }
+
+            editor.EndChange();
+            
+            if (editor.Parent is Grid wrapper && wrapper.Children.OfType<Border>().FirstOrDefault()?.Child is Canvas canvas)
+            {
+                editor.FontSize = editor.FontSize; 
+            }
         }
     }
 }

@@ -169,7 +169,8 @@ namespace KalebClipPro
                 {
                     if (esCodigo)
                     {
-                        AplicarColorCode(nuevoEditor, textoPlano);
+                        //AplicarColorCode(nuevoEditor, textoPlano);
+                        Helpers.RichTextFormatterHelper.AplicarColorCode(nuevoEditor, textoPlano);
                         GuardarEstadoSeguro(c, nuevoEditor); 
                     }
                     else
@@ -413,7 +414,7 @@ namespace KalebClipPro
                         args.Handled = true; 
                         string textoActual = new TextRange(nuevoEditor.Document.ContentStart, nuevoEditor.Document.ContentEnd).Text;
                         if (textoActual.EndsWith("\r\n")) textoActual = textoActual.Substring(0, textoActual.Length - 2);
-                        AplicarColorCode(nuevoEditor, textoActual); GuardarEstadoSeguro(c, nuevoEditor); return;
+                        Helpers.RichTextFormatterHelper.AplicarColorCode(nuevoEditor, textoActual); GuardarEstadoSeguro(c, nuevoEditor); return;
                     }
 
                     // --- Viaje en el tiempo (CTRL+Z / CTRL+Y) ---
@@ -450,7 +451,7 @@ namespace KalebClipPro
                                     bool isShiftPressed = Keyboard.Modifiers == ModifierKeys.Shift;
                                     
                                     // +1 aumenta (derecha), -1 reduce (izquierda)
-                                    AplicarSangriaPersonalizada(nuevoEditor, isShiftPressed ? -1 : 1);
+                                    Helpers.RichTextFormatterHelper.AplicarSangriaPersonalizada(nuevoEditor, isShiftPressed ? -1 : 1);
                                     
                                     actualizarVisuales();
                                     return; 
@@ -513,70 +514,30 @@ namespace KalebClipPro
             ListaClips.Focus();
         }
 
-        private void AplicarInterlineado(double alturaLinea, double espacioAbajo)
-        {
-            if (_editorActual == null || _editorActual.Selection.IsEmpty) return;
-
-            _editorActual.BeginChange();
-
-            // Obtenemos los bloques seleccionados (Párrafos)
-            var bloquesSeleccionados = _editorActual.Document.Blocks
-                .Where(b => _editorActual.Selection.Contains(b.ContentStart) || 
-                            _editorActual.Selection.Contains(b.ContentEnd));
-
-            foreach (var bloque in bloquesSeleccionados)
-            {
-                if (bloque is Paragraph p)
-                {
-                    p.LineHeight = alturaLinea;        // Espacio entre líneas (ej: 20)
-                    p.Margin = new Thickness(0, 0, 0, espacioAbajo); // Espacio después del párrafo (ej: 10)
-                }
-            }
-
-            _editorActual.EndChange();
-            
-            // Forzamos un guardado manual
-            if (ListaClips.SelectedItem is ClipData currentClip)
-            {
-                 GuardarEstadoSeguro(currentClip, _editorActual);
-            }
-        }
+        
 
         private void CmbInterlineado_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Verificamos que tengamos un editor activo y un valor seleccionado
             if (_editorActual == null || CmbInterlineado.SelectedItem is not ComboBoxItem item) return;
             
             string valorInterlineado = item.Content?.ToString() ?? "1.0";
-            
-            double altura = double.NaN; // double.NaN le dice a WPF "usa el valor automático por defecto"
+            double altura = double.NaN; 
             double margenAbajo = 0;
 
-            // Calculamos el interlineado basado en un tamaño de fuente estándar (13px)
             switch (valorInterlineado)
             {
-                case "1.0": 
-                    altura = double.NaN; 
-                    margenAbajo = 0; 
-                    break;
-                case "1.15": 
-                    altura = 18; 
-                    margenAbajo = 2; 
-                    break;
-                case "1.5": 
-                    altura = 24; 
-                    margenAbajo = 5; 
-                    break;
-                case "2.0": 
-                    altura = 32; 
-                    margenAbajo = 10; 
-                    break;
+                case "1.0": altura = double.NaN; margenAbajo = 0; break;
+                case "1.15": altura = 18; margenAbajo = 2; break;
+                case "1.5": altura = 24; margenAbajo = 5; break;
+                case "2.0": altura = 32; margenAbajo = 10; break;
             }
 
-            // Llamamos a la función que creamos previamente
-            AplicarInterlineado(altura, margenAbajo);
+            // Llamamos al Helper
+            Helpers.RichTextFormatterHelper.AplicarInterlineado(_editorActual, altura, margenAbajo);
             
-            // Devolvemos el foco al editor para que puedas seguir escribiendo sin dar un clic extra
+            // Guardamos el estado desde aquí, que es quien conoce la BD
+            if (ListaClips.SelectedItem is ClipData currentClip) GuardarEstadoSeguro(currentClip, _editorActual);
+            
             _editorActual.Focus(); 
         }
 
@@ -748,166 +709,6 @@ namespace KalebClipPro
 
                     _viajandoEnElTiempo = false;
                 }
-            }
-        }
-
-        private void AplicarColorCode(RichTextBox editor, string codigoCrudo)
-        {
-            if (editor == null || string.IsNullOrWhiteSpace(codigoCrudo)) return;
-
-            editor.BeginChange();
-            editor.Document.Blocks.Clear();
-
-            // 1. Cargamos el diccionario oscuro
-            var miEstiloVibrante = ColorCode.Styling.StyleDictionary.DefaultDark;
-
-            // 2. 🎨 PERSONALIZACIÓN (Colores más intensos)
-            ActualizarColor(miEstiloVibrante, ScopeName.Keyword, "#F92672");    // Rosa
-            ActualizarColor(miEstiloVibrante, ScopeName.String, "#E6DB74");     // Amarillo
-            ActualizarColor(miEstiloVibrante, ScopeName.Comment, "#75715E");    // Gris
-            ActualizarColor(miEstiloVibrante, ScopeName.Number, "#AE81FF");     // Morado
-            ActualizarColor(miEstiloVibrante, ScopeName.PlainText, "#F8F8F2");  // Hueso
-            
-            // 3. Formateador con el nuevo estilo
-            var formatter = new RichTextBoxFormatter(miEstiloVibrante);
-            Paragraph p = new Paragraph { Margin = new Thickness(0) };
-
-            formatter.FormatInlines(codigoCrudo, Languages.CSharp, p.Inlines);
-
-            editor.Document.Blocks.Add(p);
-            editor.EndChange();
-        }
-
-        // Método auxiliar corregido
-        private void ActualizarColor(ColorCode.Styling.StyleDictionary dic, string scope, string hex)
-        {
-            // FIX 1: Usamos Contains() en vez de ContainsKey()
-            if (dic.Contains(scope))
-            {
-                // FIX 2: Asignamos el string hexadecimal directamente
-                dic[scope].Foreground = hex;
-            }
-        }
-
-        // 🌟 FIX: Añadimos '?' para indicar que el editor puede ser nulo
-        private int ObtenerPrecedenteNumeroDeLista(RichTextBox? editor)
-        {
-            if (editor == null) return 0;
-
-            try 
-            {
-                TextPointer caret = editor.CaretPosition;
-                Block? currentBlock = caret.Paragraph;
-
-                if (currentBlock?.Parent is ListItem li && li.Parent is List parentList)
-                {
-                    currentBlock = parentList;
-                }
-
-                while (currentBlock != null)
-                {
-                    currentBlock = currentBlock.PreviousBlock;
-
-                    if (currentBlock is List listaPrevia && listaPrevia.MarkerStyle == TextMarkerStyle.Decimal)
-                    {
-                        return listaPrevia.StartIndex + listaPrevia.ListItems.Count - 1;
-                    }
-                }
-            } 
-            catch { }
-            
-            return 0;
-        }
-
-        private void AplicarListaNumeradaInteligente(RichTextBox? editor)
-        {
-            // Si no hay editor activo, no hacemos nada
-            if (editor == null) return;
-
-            // Envolvemos todo en ApplicationIdle. Esto asegura que cualquier Popup 
-            // ya se haya cerrado y el foco se pueda recuperar sin que WPF lo bloquee.
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                // 1. Obligamos al cursor a volver al editor
-                Keyboard.Focus(editor);
-                editor.Focus();
-
-                // 2. Buscamos el número anterior
-                int ultimoNumero = ObtenerPrecedenteNumeroDeLista(editor);
-
-                // 3. Ejecutamos el comando de lista numerada
-                EditingCommands.ToggleNumbering.Execute(null, editor);
-
-                // 4. Ajustamos el número para que sea consecutivo
-                if (editor.CaretPosition.Paragraph?.Parent is ListItem listItem && listItem.Parent is List currentList)
-                {
-                    currentList.StartIndex = ultimoNumero > 0 ? ultimoNumero + 1 : 1;
-                }
-
-            }), DispatcherPriority.ApplicationIdle); 
-        }
-
-        private void AplicarSangriaPersonalizada(RichTextBox? editor, int direccion)
-        {
-            if (editor == null) return;
-
-            editor.BeginChange();
-
-            TextSelection seleccion = editor.Selection;
-            List<Paragraph> parrafosAfectados = new List<Paragraph>();
-
-            // 1. Detectamos qué vamos a mover (un párrafo o varios seleccionados)
-            if (seleccion.IsEmpty && editor.CaretPosition.Paragraph != null)
-            {
-                parrafosAfectados.Add(editor.CaretPosition.Paragraph);
-            }
-            else
-            {
-                foreach (Block block in editor.Document.Blocks)
-                {
-                    if (block is Paragraph p && (seleccion.Contains(p.ContentStart) || seleccion.Contains(p.ContentEnd)))
-                    {
-                        parrafosAfectados.Add(p);
-                    }
-                    else if (block is List lista)
-                    {
-                        foreach (ListItem li in lista.ListItems)
-                        {
-                            if (li.Blocks.FirstBlock is Paragraph lp && (seleccion.Contains(lp.ContentStart) || seleccion.Contains(lp.ContentEnd)))
-                            {
-                                parrafosAfectados.Add(lp);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 2. Aplicamos la sangría moviendo el margen izquierdo (+35px o -35px)
-            foreach (Paragraph p in parrafosAfectados)
-            {
-                if (p.Parent is ListItem li)
-                {
-                    // Si está en una lista, movemos el contenedor del ítem para que el número viaje con el texto
-                    double nuevaSangria = li.Margin.Left + (direccion * 35);
-                    if (nuevaSangria < 0) nuevaSangria = 0;
-                    li.Margin = new Thickness(nuevaSangria, li.Margin.Top, li.Margin.Right, li.Margin.Bottom);
-                }
-                else
-                {
-                    // Párrafo normal
-                    double nuevaSangria = p.Margin.Left + (direccion * 35);
-                    if (nuevaSangria < 0) nuevaSangria = 0;
-                    p.Margin = new Thickness(nuevaSangria, p.Margin.Top, p.Margin.Right, p.Margin.Bottom);
-                }
-            }
-
-            editor.EndChange();
-            
-            // Forzamos el redibujado de los números de línea
-            if (editor.Parent is Grid wrapper && wrapper.Children.OfType<Border>().FirstOrDefault()?.Child is Canvas canvas)
-            {
-                // Un pequeño truco para llamar a actualizarVisuales indirectamente
-                editor.FontSize = editor.FontSize; 
             }
         }
     }
