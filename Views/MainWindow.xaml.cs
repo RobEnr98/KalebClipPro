@@ -447,56 +447,13 @@ namespace KalebClipPro
         private void BtnMdIndentDec_Click(object sender, RoutedEventArgs e) { CerrarPopups(); AplicarSangriaPersonalizada(_editorActual, -1); }
 
         // --- INSERCIÓN COMPLEJA ---
-        private void BtnMdQuote_Click(object sender, RoutedEventArgs e) 
-        { 
-            CerrarPopups(); 
-            if (_editorActual == null) return;
-            
-            Paragraph p = new Paragraph(new Run(_editorActual.Selection.Text)) {
-                Margin = new Thickness(20, 10, 0, 10),
-                FontStyle = FontStyles.Italic,
-                Foreground = Brushes.Gray,
-                BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(2, 0, 0, 0),
-                Padding = new Thickness(10, 0, 0, 0)
-            };
-            _editorActual.Document.Blocks.Add(p);
-            _editorActual.Focus();
-        }
-
-        private void BtnMdCode_Click(object sender, RoutedEventArgs e) 
-        { 
-            CerrarPopups(); 
-            if (_editorActual == null) return;
-            
-            _editorActual.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, new FontFamily("Consolas"));
-            _editorActual.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, new SolidColorBrush(Color.FromRgb(40, 44, 52)));
-            _editorActual.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.LightGreen);
-            _editorActual.Focus();
-        }
-
-        private void BtnMdLink_Click(object sender, RoutedEventArgs e) 
-        { 
-            CerrarPopups(); 
-            if (_editorActual == null || _editorActual.Selection.IsEmpty) return;
-            
-            string url = "https://google.com"; // Placeholder, se puede cambiar por un InputBox
-            Hyperlink link = new Hyperlink(_editorActual.Selection.Start, _editorActual.Selection.End);
-            link.NavigateUri = new Uri(url);
-            link.Cursor = Cursors.Hand;
-            _editorActual.Focus();
-        }
+        private void BtnMdQuote_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.InsertarCita(_editorActual!); }
         
-        private void BtnMdMath_Click(object sender, RoutedEventArgs e) 
-        { 
-            CerrarPopups(); 
-            if (_editorActual == null) return;
-
-            TextRange range = new TextRange(_editorActual.Selection.Start, _editorActual.Selection.End);
-            range.Text = $"${_editorActual.Selection.Text}$"; 
-            range.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Orange);
-            _editorActual.Focus();
-        }
+        private void BtnMdCode_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.FormatearComoCodigo(_editorActual!); }
+        
+        private void BtnMdLink_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.InsertarEnlace(_editorActual!, "https://google.com"); } // Después podemos cambiar este URL por un Input
+        
+        private void BtnMdMath_Click(object sender, RoutedEventArgs e) { CerrarPopups(); Helpers.RichTextFormatterHelper.FormatearComoMatematicas(_editorActual!); }
         
         private void BtnMdTable_Click(object sender, RoutedEventArgs e)
         {
