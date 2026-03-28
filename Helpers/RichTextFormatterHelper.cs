@@ -54,5 +54,57 @@ namespace KalebClipPro.Helpers
             range.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Orange);
             editorActual.Focus();
         }
+
+        public static void CambiarColorTexto(RichTextBox editorActual, object senderBoton, Window ownerWindow)
+        {
+            if (editorActual == null) return;
+
+            var dialog = new KalebClipPro.Views.PaletaColores();
+            dialog.Owner = ownerWindow; 
+            var colorActualObj = editorActual.Selection.GetPropertyValue(TextElement.ForegroundProperty);
+
+            // Cálculo anti-zoom de Windows movido aquí
+            Button? boton = senderBoton as Button;
+            if (boton != null)
+            {
+                Point screenPos = boton.PointToScreen(new Point(0, boton.ActualHeight));
+                PresentationSource source = PresentationSource.FromVisual(ownerWindow);
+                
+                if (source != null)
+                {
+                    dialog.WindowStartupLocation = WindowStartupLocation.Manual;
+                    dialog.Left = screenPos.X / source.CompositionTarget.TransformToDevice.M11;
+                    dialog.Top = screenPos.Y / source.CompositionTarget.TransformToDevice.M22;
+                }
+            }
+
+            if (colorActualObj is SolidColorBrush brush)
+            {
+                dialog.CargarColorDesdeEditor(brush.Color);
+            }
+            
+            dialog.AlSeleccionarColor = (color) =>
+            {
+                var newBrush = new SolidColorBrush(color);
+                editorActual.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, newBrush);
+                editorActual.Focus();
+            };
+
+            dialog.Show();
+        }
+
+        public static void CambiarFuente(RichTextBox editorActual, FontFamily fuente)
+        {
+            if (editorActual == null || fuente == null) return;
+            editorActual.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fuente);
+            editorActual.Focus();
+        }
+
+        public static void CambiarTamano(RichTextBox editorActual, double tamano)
+        {
+            if (editorActual == null) return;
+            editorActual.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, tamano);
+            editorActual.Focus();
+        }
     }
 }

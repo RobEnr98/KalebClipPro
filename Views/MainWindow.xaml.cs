@@ -172,36 +172,10 @@ namespace KalebClipPro
 
         private void ProcesarNuevoPortapapeles()
         {
-            if (_sysManager.IgnorandoSiguienteCaptura) 
-            { 
-                _sysManager.IgnorandoSiguienteCaptura = false; 
-                return;
-            }
-            
-            try 
-            {
-                if (Clipboard.ContainsText())
-                {
-                    string text = Clipboard.GetText();
-                    if (string.IsNullOrWhiteSpace(text)) return;
-                    
-                    if (text == _ultimoTextoInyectado) return; 
-
-                    if (_capturandoParaRecolector)
-                    {
-                        _capturandoParaRecolector = false; 
-                        return; 
-                    }
-
-                    if (MisClips.Count > 0 && MisClips[0].Contenido_Plano == text) return; 
-
-                    string appGeneral = _sysManager.ObtenerAppActiva();
-                    string nuevoId = db.GuardarClipConOrigen(text, appGeneral);
-                    var nuevoClip = new ClipData { Guid_Clip = nuevoId, Contenido_Plano = text, Origen_App = appGeneral.ToUpper(), Fecha_Creacion = DateTime.Now };
-                    if (!_filtrosActivos) MisClips.Insert(0, nuevoClip);
-                }
-            }
-            catch { }
+            _actionService.GuardarNuevoClipEnHistorial(db, MisClips, _ultimoTextoInyectado, 
+                (estado) => _capturandoParaRecolector = estado, 
+                _capturandoParaRecolector, 
+                _filtrosActivos);
         }
         
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -223,25 +197,18 @@ namespace KalebClipPro
 
         private void CmbFuentes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CmbFuentes.SelectedItem is FontFamily fuenteSeleccionada && _editorActual != null)
+            if (CmbFuentes.SelectedItem is FontFamily fuente)
             {
-                _fuentePreferida = fuenteSeleccionada;
-                
-                // Aplica a la selección si hay texto seleccionado, sino, aplicará al texto siguiente
-                _editorActual.Selection.ApplyPropertyValue(TextElement.FontFamilyProperty, fuenteSeleccionada);
-                _editorActual.Focus();
+                _fuentePreferida = fuente; // Guardamos la preferencia en la ventana
+                Helpers.RichTextFormatterHelper.CambiarFuente(_editorActual!, fuente);
             }
         }
 
         private void CmbTamano_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CmbTamano.SelectedItem is ComboBoxItem item && _editorActual != null)
+            if (CmbTamano.SelectedItem is ComboBoxItem item && double.TryParse(item.Content.ToString(), out double tamano))
             {
-                if (double.TryParse(item.Content.ToString(), out double nuevoTamano))
-                {
-                    _editorActual.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, nuevoTamano);
-                    _editorActual.Focus();
-                }
+                Helpers.RichTextFormatterHelper.CambiarTamano(_editorActual!, tamano);
             }
         }
 
@@ -270,43 +237,8 @@ namespace KalebClipPro
         private void BtnMdUnderline_Click(object sender, RoutedEventArgs e) => EjecutarFormato(EditingCommands.ToggleUnderline);
         
         private void BtnMdColor_Click(object sender, RoutedEventArgs e) 
-        { 
-            if (_editorActual == null) return;
-
-            var dialog = new KalebClipPro.Views.PaletaColores();
-            dialog.Owner = this; 
-            var colorActualObj = _editorActual.Selection.GetPropertyValue(System.Windows.Documents.TextElement.ForegroundProperty);
-
-            // 🌟 CORRECCIÓN 3: Cálculo de posición anti-zoom de Windows
-            Button? boton = sender as Button;
-            if (boton != null)
-            {
-                Point screenPos = boton.PointToScreen(new Point(0, boton.ActualHeight));
-                PresentationSource source = PresentationSource.FromVisual(this);
-                
-                if (source != null)
-                {
-                    dialog.WindowStartupLocation = WindowStartupLocation.Manual;
-                    // Dividimos entre el DPI de la pantalla para evitar saltos locos
-                    dialog.Left = screenPos.X / source.CompositionTarget.TransformToDevice.M11;
-                    dialog.Top = screenPos.Y / source.CompositionTarget.TransformToDevice.M22;
-                }
-            }
-
-            if (colorActualObj is SolidColorBrush brush)
-            {
-                // Le pasamos el color de la brocha a la paleta
-                dialog.CargarColorDesdeEditor(brush.Color);
-            }
-            
-            dialog.AlSeleccionarColor = (color) =>
-            {
-                var brush = new SolidColorBrush(color);
-                _editorActual.Selection.ApplyPropertyValue(System.Windows.Documents.TextElement.ForegroundProperty, brush);
-                _editorActual.Focus();
-            };
-
-            dialog.Show();
+        {
+            Helpers.RichTextFormatterHelper.CambiarColorTexto(_editorActual!, sender, this);
         }
 
         // --- ALINEACIÓN ---

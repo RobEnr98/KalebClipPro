@@ -176,5 +176,48 @@ namespace KalebClipPro.Services
             }
             return string.Empty;
         }
+
+        public void GuardarNuevoClipEnHistorial(DatabaseService db, 
+                                                ObservableCollection<ClipData> misClips, 
+                                                string ultimoTextoInyectado, 
+                                                Action<bool> setCapturando, 
+                                                bool capturandoParaRecolector, 
+                                                bool filtrosActivos)
+        {
+            if (_sysManager.IgnorandoSiguienteCaptura) 
+            { 
+                _sysManager.IgnorandoSiguienteCaptura = false; 
+                return;
+            }
+            
+            try 
+            {
+                if (Clipboard.ContainsText())
+                {
+                    string text = Clipboard.GetText();
+                    if (string.IsNullOrWhiteSpace(text)) return;
+                    
+                    if (text == ultimoTextoInyectado) return; 
+
+                    if (capturandoParaRecolector)
+                    {
+                        setCapturando(false); 
+                        return; 
+                    }
+
+                    if (misClips.Count > 0 && misClips[0].Contenido_Plano == text) return; 
+
+                    // Guardamos en la BD usando el servicio
+                    string appGeneral = _sysManager.ObtenerAppActiva();
+                    string nuevoId = db.GuardarClipConOrigen(text, appGeneral);
+                    
+                    // Creamos el objeto visual
+                    var nuevoClip = new ClipData { Guid_Clip = nuevoId, Contenido_Plano = text, Origen_App = appGeneral.ToUpper(), Fecha_Creacion = DateTime.Now };
+                    
+                    if (!filtrosActivos) misClips.Insert(0, nuevoClip);
+                }
+            }
+            catch { }
+        }
     }
 }
