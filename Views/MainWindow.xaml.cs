@@ -31,6 +31,7 @@ namespace KalebClipPro
         DatabaseService db = new DatabaseService();
         ClipboardManager _sysManager = new ClipboardManager(); 
         WorkflowService _workflowService = new WorkflowService();
+        ClipboardActionService _actionService;
         
         public ObservableCollection<ClipData> MisClips { get; set; } = new ObservableCollection<ClipData>();
         public ObservableCollection<ClipData> ClipsRecolector { get; set; } = new ObservableCollection<ClipData>();
@@ -68,6 +69,24 @@ namespace KalebClipPro
 
                 TextBoxContainer.PreviewKeyDown += (s, e) => { if (_editorActual != null) Helpers.TableSurgeonHelper.SmartEditor_PreviewKeyDown(_editorActual, s, e); };
                 TextBoxContainer.PreviewMouseRightButtonUp += (s, e) => { if (_editorActual != null) Helpers.TableSurgeonHelper.MostrarMenuContextual(_editorActual, e, this); };
+
+                // 🌟 CONFIGURAR EL SERVICIO DE ACCIONES 🌟
+                _actionService = new ClipboardActionService(_sysManager);
+                _actionService.OnTextoInyectado = (texto) => _ultimoTextoInyectado = texto;
+                _actionService.OnEstadoCapturaCambiado = (estado) => _capturandoParaRecolector = estado;
+                _actionService.OnNotificarCambioTab = (color) => { TabRecolector.IsChecked = true; NotificarCambioTab(color); };
+                _actionService.OnActualizarContadorTab = () => { /* Asegúrate de que este método exista en otra parte de tu código, si no, bórralo aquí */ };
+                _actionService.OnAvanzarSet = () => {
+                    // CÓDIGO DEL HOTKEY 50 QUE MOVIMOS
+                    // (Asegúrate de que GuardarSlotsActuales() y demás existan en MainWindow)
+                    // GuardarSlotsActuales();
+                    var llaves = WorkflowActual.Sets.Keys.OrderBy(k => k).ToList();
+                    int indiceActual = llaves.IndexOf(_setActual);
+                    _setActual = llaves[(indiceActual + 1) % llaves.Count];
+                    // InicializarSlotsVacios();
+                    // ActualizarCheckVisualSets();
+                    NotificarCambioTab(Colors.Cyan);
+                };
             }
             catch (Exception ex)
             {
@@ -116,158 +135,13 @@ namespace KalebClipPro
         {
             if (msg == ClipboardManager.MSG_HOTKEY)
             {
-                ManejarAtajoGlobal(wParam.ToInt32());
+                _actionService.ProcesarAtajoGlobal(wParam.ToInt32(), ClipsRecolector, MisClips, Dispatcher);
             }
             else if (msg == ClipboardManager.MSG_CLIPBOARDUPDATE)
             {
                 ProcesarNuevoPortapapeles();
             }
             return IntPtr.Zero;
-        }
-
-        private void ManejarAtajoGlobal(int hotkeyId)
-        {
-            if ((hotkeyId >= 1 && hotkeyId <= 9) || (hotkeyId >= 101 && hotkeyId <= 109))
-            {
-                int slotReal = hotkeyId > 100 ? hotkeyId - 100 : hotkeyId;
-                
-                Dispatcher.Invoke(() => {
-                    bool pegadoDesdeRecolector = false;
-                    int index = slotReal - 1; 
-
-                    if (index >= 0 && index < 9 && !ClipsRecolector[index].EsVacio)
-                    {
-                        _ultimoTextoInyectado = ClipsRecolector[index].Contenido_Plano;
-                        _sysManager.EjecutarPegadoGlobal(_ultimoTextoInyectado);
-                        pegadoDesdeRecolector = true;
-                    }
-
-                    if (!pegadoDesdeRecolector)
-                    {
-                        var clipAsignado = MisClips.FirstOrDefault(c => c.HotKeyIndex == slotReal);
-                        if (clipAsignado != null)
-                        {
-                            _ultimoTextoInyectado = clipAsignado.Contenido_Plano;
-                            _sysManager.EjecutarPegadoGlobal(_ultimoTextoInyectado);
-                        }
-                    }
-                });
-            }
-            else if (hotkeyId == 10)
-            {
-                _capturandoParaRecolector = true; 
-                _sysManager.SimularCopiaGlobal(); 
-                
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
-                timer.Tick += (s, e) => {
-                    timer.Stop();
-                    try 
-                    {
-                        string text = GetClipboardTextSafe();
-
-                        if (!string.IsNullOrWhiteSpace(text))
-                        {
-                            string app = _sysManager.ObtenerAppActiva();
-                            TabRecolector.IsChecked = true;
-                            
-                            for (int i = 8; i > 0; i--) 
-                            {
-                                ClipsRecolector[i].Contenido_Plano = ClipsRecolector[i - 1].Contenido_Plano;
-                                ClipsRecolector[i].Origen_App = ClipsRecolector[i - 1].Origen_App;
-                            }
-                            
-                            ClipsRecolector[0].Contenido_Plano = text;
-                            ClipsRecolector[0].Origen_App = app.ToUpper();
-                            
-                            ActualizarContadorTab();
-                            NotificarCambioTab(Colors.Gold);
-                        }
-                    } 
-                    catch { }
-
-                    Dispatcher.BeginInvoke(async () => {
-                        await System.Threading.Tasks.Task.Delay(300);
-                        _capturandoParaRecolector = false;
-                    });
-                };
-                timer.Start();
-            }
-            else if (hotkeyId == 11)
-            {
-                Dispatcher.Invoke(() => {
-                    var slotsLlenos = ClipsRecolector.Where(c => !c.EsVacio).Select(c => c.Contenido_Plano);
-                    
-                    if (slotsLlenos.Any())
-                    {
-                        string textoAcumulado = string.Join(Environment.NewLine + Environment.NewLine, slotsLlenos);
-                        _ultimoTextoInyectado = textoAcumulado; 
-                        _sysManager.EjecutarPegadoGlobal(_ultimoTextoInyectado);
-                        NotificarCambioTab(Colors.LimeGreen);
-                    }
-                });
-            }
-            else if ((hotkeyId >= 21 && hotkeyId <= 29) || (hotkeyId >= 121 && hotkeyId <= 129))
-            {
-                int slotDestino = hotkeyId > 120 ? hotkeyId - 120 : hotkeyId - 20;
-                int indiceArray = slotDestino - 1;
-
-                _capturandoParaRecolector = true;
-                _sysManager.SimularCopiaGlobal();
-
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
-                timer.Tick += (s, e) => {
-                    timer.Stop();
-                    try
-                    {
-                        string text = GetClipboardTextSafe();
-                        if (!string.IsNullOrWhiteSpace(text))
-                        {
-                            string app = _sysManager.ObtenerAppActiva();
-                            TabRecolector.IsChecked = true;
-
-                            ClipsRecolector[indiceArray].Contenido_Plano = text;
-                            ClipsRecolector[indiceArray].Origen_App = app.ToUpper();
-
-                            ActualizarContadorTab();
-                            NotificarCambioTab(Colors.DeepSkyBlue); 
-                        }
-                    }
-                    catch { }
-
-                    Dispatcher.BeginInvoke(async () => {
-                        await System.Threading.Tasks.Task.Delay(300);
-                        _capturandoParaRecolector = false;
-                    });
-                };
-                timer.Start();
-            }
-            else if (hotkeyId == 50)
-            {
-                Dispatcher.Invoke(() => {
-                    GuardarSlotsActuales();
-
-                    var llaves = WorkflowActual.Sets.Keys.OrderBy(k => k).ToList();
-                    int indiceActual = llaves.IndexOf(_setActual);
-                    int siguienteIndice = (indiceActual + 1) % llaves.Count;
-                    
-                    _setActual = llaves[siguienteIndice];
-
-                    InicializarSlotsVacios();
-                    ActualizarCheckVisualSets();
-                    NotificarCambioTab(Colors.Cyan);
-                });
-            }
-        }
-
-        private string GetClipboardTextSafe()
-        {
-            for(int i = 0; i < 4; i++) {
-                try { 
-                    if (Clipboard.ContainsText()) return Clipboard.GetText(); 
-                }
-                catch { System.Threading.Thread.Sleep(20); }
-            }
-            return string.Empty;
         }
 
         private void NotificarCambioTab(Color color)

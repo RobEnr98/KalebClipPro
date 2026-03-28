@@ -5,12 +5,12 @@
       {
         "Guid_Clip": "",
         "AlturaVisual": 38,
-        "Contenido_Plano": "",
+        "Contenido_Plano": "git add .",
         "HotKeyIndex": 1,
         "WorkspaceID": 1,
-        "Origen_App": "",
+        "Origen_App": "brave",
         "Fecha_Creacion": "0001-01-01T00:00:00",
-        "EsVacio": true
+        "EsVacio": false
       },
       {
         "Guid_Clip": "",
