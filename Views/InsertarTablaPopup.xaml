@@ -1,0 +1,223 @@
+<Window x:Class="KalebClipPro.Views.InsertarTablaPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="420" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Topmost="False">
+
+    <Window.Resources>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#1D2227"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3A444D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4"/>
+                            <Path x:Name="Arrow" Fill="#A0ABBA" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Data="M 0 0 L 4 4 L 8 0 Z" IsHitTestVisible="False"/>
+                            <ContentPresenter IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <ToggleButton Opacity="0" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press" Focusable="False" Cursor="Hand"/>
+                            <Popup Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                                <Grid MinWidth="{TemplateBinding ActualWidth}" MaxHeight="200">
+                                    <Border Background="#252B32" BorderThickness="1" BorderBrush="#3A444D" CornerRadius="4" Margin="0,2,0,0">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="5" Opacity="0.3" ShadowDepth="2"/>
+                                        </Border.Effect>
+                                    </Border>
+                                    <ScrollViewer Margin="1">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border Name="Border" Padding="{TemplateBinding Padding}" Background="Transparent" CornerRadius="2">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="true">
+                                <Setter TargetName="Border" Property="Background" Value="#00ADB5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BotonBordeStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1D2227"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3A444D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3A444D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="#252B32" CornerRadius="8" BorderBrush="#3A444D" BorderThickness="1" Padding="20" Margin="15">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="10" Opacity="0.5" ShadowDepth="4" Direction="270"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Insertar Tabla Avanzada" Foreground="White" FontWeight="SemiBold" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+
+            <Grid Grid.Row="1" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Filas:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtFilas" Text="3" Background="#1D2227" Foreground="White" BorderThickness="1" BorderBrush="#3A444D" Padding="6"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Columnas:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                    <TextBox x:Name="TxtColumnas" Text="3" Background="#1D2227" Foreground="White" BorderThickness="1" BorderBrush="#3A444D" Padding="6"/>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="2" Margin="0,0,0,15">
+                <TextBlock Text="Estilo Base:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                <ComboBox x:Name="CmbEstilo" SelectedIndex="1" SelectionChanged="CmbEstilo_SelectionChanged">
+                    <ComboBoxItem Content="Sencilla (Sin color)"/>
+                    <ComboBoxItem Content="Efecto Cascada (Filas con bandas)"/>
+                    <ComboBoxItem Content="Columnas con bandas"/>
+                    <ComboBoxItem Content="Cascada y Bandas (Cuadrícula)"/>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Grid.Row="3" Margin="0,0,0,15">
+                <TextBlock Text="Opciones de Estilo (Resaltar):" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                <UniformGrid Columns="2" Rows="2">
+                    <CheckBox x:Name="ChkEncabezado" Content="Fila de encabezado" Foreground="White" IsChecked="True" Margin="0,5" Checked="OpcionesEstilo_Changed" Unchecked="OpcionesEstilo_Changed"/>
+                    <CheckBox x:Name="ChkPrimeraColumna" Content="Primera columna" Foreground="White" Margin="0,5" Checked="OpcionesEstilo_Changed" Unchecked="OpcionesEstilo_Changed"/>
+                    <CheckBox x:Name="ChkTotales" Content="Fila de totales" Foreground="White" Margin="0,5" Checked="OpcionesEstilo_Changed" Unchecked="OpcionesEstilo_Changed"/>
+                    <CheckBox x:Name="ChkUltimaColumna" Content="Última columna" Foreground="White" Margin="0,5" Checked="OpcionesEstilo_Changed" Unchecked="OpcionesEstilo_Changed"/>
+                </UniformGrid>
+            </StackPanel>
+
+            <StackPanel Grid.Row="4" Margin="0,0,0,15">
+                <TextBlock Text="Color de Acento:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                <StackPanel x:Name="PanelColores" Orientation="Horizontal">
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#95A5A6" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#95A5A6" BorderThickness="0" ToolTip="Escala de grises"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#00ADB5" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#00ADB5" BorderThickness="2" BorderBrush="White"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#3498DB" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#3498DB" BorderThickness="0"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#2ECC71" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#2ECC71" BorderThickness="0"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#E74C3C" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#E74C3C" BorderThickness="0"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#9B59B6" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#9B59B6" BorderThickness="0"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Background="#F39C12" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="Color_Click" Tag="#F39C12" BorderThickness="0"/>
+                    <Border Width="24" Height="24" CornerRadius="12" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonDown="BtnColorAcentoPersonalizado_Click" ToolTip="Paleta personalizada" BorderThickness="0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FF3B30" Offset="0.0"/>
+                                <GradientStop Color="#FFCC00" Offset="0.33"/>
+                                <GradientStop Color="#4CD964" Offset="0.66"/>
+                                <GradientStop Color="#007AFF" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
+                </StackPanel>
+            </StackPanel>
+
+            <Grid Grid.Row="5" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/> <ColumnDefinition Width="*"/> <ColumnDefinition Width="*"/> </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" HorizontalAlignment="Left">
+                    <TextBlock Text="Bordes:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                    <StackPanel x:Name="PanelBotonesBorde" Orientation="Horizontal">
+                        <Button Style="{StaticResource BotonBordeStyle}" ToolTip="Sin borde" Click="Borde_Click" Tag="Ninguno">
+                            <TextBlock Text="🔲" FontSize="14" Foreground="#A0ABBA"/>
+                        </Button>
+                        <Button Style="{StaticResource BotonBordeStyle}" ToolTip="Todos los bordes" Click="Borde_Click" Tag="Todos">
+                            <TextBlock Text="▦" FontSize="16"/>
+                        </Button>
+                        <Button Style="{StaticResource BotonBordeStyle}" ToolTip="Solo líneas horizontales" Click="Borde_Click" Tag="Horizontales">
+                            <TextBlock Text="≡" FontSize="16"/>
+                        </Button>
+                        <Button Style="{StaticResource BotonBordeStyle}" ToolTip="Solo líneas verticales" Click="Borde_Click" Tag="Verticales">
+                            <TextBlock Text="Ⅲ" FontSize="16"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="Grosor:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                    <ComboBox x:Name="CmbGrosor" SelectedIndex="0" SelectionChanged="CmbEstilo_SelectionChanged" MinWidth="110">
+                        <ComboBoxItem Content="Fino (0.5 px)"/>
+                        <ComboBoxItem Content="Normal (1.0 px)"/>
+                        <ComboBoxItem Content="Grueso (2.0 px)"/>
+                        <ComboBoxItem Content="Extra (3.0 px)"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                    <TextBlock Text="Color Borde:" Foreground="#A0ABBA" Margin="0,0,0,5"/>
+                    <Border x:Name="ColorBordePreviewUI" 
+                            Width="28" Height="28" 
+                            CornerRadius="4" 
+                            Background="#3A444D" 
+                            BorderBrush="#1D2227" 
+                            BorderThickness="1"
+                            Cursor="Hand" 
+                            MouseLeftButtonDown="BtnColorBorde_Click" 
+                            ToolTip="Elegir color de borde"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="6" Background="#181D21" BorderBrush="#3A444D" BorderThickness="1" CornerRadius="4" Height="100" Margin="0,0,0,15">
+                <Grid x:Name="PreviewGrid" Margin="10"/>
+            </Border>
+
+
+
+            <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnInsertar" Content="Insertar Tabla" Background="#00ADB5" Foreground="White" BorderThickness="0" Padding="15,8" Margin="0,0,10,0" Cursor="Hand"/>
+                <Button x:Name="BtnCancelar" Content="Cancelar" Background="Transparent" Foreground="#A0ABBA" BorderThickness="0" Padding="10,8" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
