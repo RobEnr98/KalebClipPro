@@ -31,7 +31,7 @@ namespace KalebClipPro
         DatabaseService db = new DatabaseService();
         ClipboardManager _sysManager = new ClipboardManager(); 
         WorkflowService _workflowService = new WorkflowService();
-        ClipboardActionService _actionService;
+        ClipboardActionService? _actionService = null!;
         
         public ObservableCollection<ClipData> MisClips { get; set; } = new ObservableCollection<ClipData>();
         public ObservableCollection<ClipData> ClipsRecolector { get; set; } = new ObservableCollection<ClipData>();
@@ -52,7 +52,7 @@ namespace KalebClipPro
         private RichTextBox? _editorActual;
 
         private ClipData? _clipSeleccionadoParaMenu = null;
-        private bool _isTimeTraveling = false;
+        //private bool _isTimeTraveling = false;
         private string _ultimoTextoInyectado = "";
         private bool _capturandoParaRecolector = false;
         private bool _scrollHorizontalHabilitado = false;
@@ -93,10 +93,22 @@ namespace KalebClipPro
             _actionService.OnNotificarCambioTab = (color) => { TabRecolector.IsChecked = true; NotificarCambioTab(color); };
             _actionService.OnActualizarContadorTab = () => { /* Asegúrate de que este método exista */ };
             _actionService.OnAvanzarSet = () => {
-                var llaves = WorkflowActual.Sets.Keys.OrderBy(k => k).ToList();
-                int indiceActual = llaves.IndexOf(_setActual);
-                _setActual = llaves[(indiceActual + 1) % llaves.Count];
+                if (WorkflowActual.Carpetas.Count == 0) return;
+
+                // 1. ¡CRÍTICO! Guardar la pantalla actual ANTES de cambiar de set
+                GuardarSlotsActuales();
+
+                var listaIds = WorkflowActual.Carpetas.Select(c => c.Id).ToList();
+                int indiceActual = listaIds.IndexOf(_setActual);
+
+                // 2. Mover la brújula al siguiente set
+                _setActual = indiceActual == -1 ? listaIds[0] : listaIds[(indiceActual + 1) % listaIds.Count];
+
+                // 3. Actualizar la vista con el nuevo set
                 NotificarCambioTab(Colors.Cyan);
+                SincronizarBotonesConDatos(); 
+                InicializarSlotsVacios();     
+                SincronizarPinesHistorial(); // Refrescar los pines dorados
             };
         }
 
@@ -301,6 +313,109 @@ namespace KalebClipPro
 
             if (GrpInsertFull != null) GrpInsertFull.Visibility = esCompacto ? Visibility.Collapsed : Visibility.Visible;
             if (BtnMenuInsert != null) BtnMenuInsert.Visibility = esCompacto ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ListaRecolector_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // Solo hacemos zoom si el usuario mantiene pulsada la tecla CTRL
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                double zoomStep = 0.1; // Qué tan rápido hace zoom
+                
+                if (e.Delta > 0) // Scroll arriba (Acercar)
+                {
+                    if (ZoomTransform.ScaleX < 2.0) // Límite máximo 200% para que no explote la pantalla
+                    {
+                        ZoomTransform.ScaleX += zoomStep;
+                        ZoomTransform.ScaleY += zoomStep;
+                    }
+                }
+                else // Scroll abajo (Alejar)
+                {
+                    if (ZoomTransform.ScaleX > 0.6) // Límite mínimo 60%
+                    {
+                        ZoomTransform.ScaleX -= zoomStep;
+                        ZoomTransform.ScaleY -= zoomStep;
+                    }
+                }
+                
+                // e.Handled = true es vital. Le dice a WPF "ya me encargué del scroll, no muevas la lista hacia abajo".
+                e.Handled = true; 
+            }
+        }
+
+        private void BtnScrollIzq_Click(object sender, RoutedEventArgs e)
+        {
+            // Restamos a la posición actual para movernos a la izquierda
+            ScrollSets.ScrollToHorizontalOffset(ScrollSets.HorizontalOffset - 40);
+        }
+
+        private void BtnScrollDer_Click(object sender, RoutedEventArgs e)
+        {
+            // Sumamos a la posición actual para movernos a la derecha
+            ScrollSets.ScrollToHorizontalOffset(ScrollSets.HorizontalOffset + 40);
+        }
+
+        private void SeleccionarSiguienteSet()
+{
+    var sets = ContenedorSets.Children.OfType<RadioButton>().ToList();
+    if (sets.Count <= 1) return; 
+
+    int currentIndex = sets.FindIndex(r => r.IsChecked == true);
+    int nextIndex = (currentIndex + 1) % sets.Count;
+
+    RadioButton nextSet = sets[nextIndex];
+
+    nextSet.IsChecked = true;
+    nextSet.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+
+    // 🌟 ARTILLERÍA PESADA: Transformaciones visuales relativas 🌟
+    // ContextIdle asegura que todo se haya renderizado antes de calcular
+    Dispatcher.BeginInvoke(new Action(() =>
+    {
+        try
+        {
+            // Calculamos el rectángulo exacto que ocupa el botón DENTRO del área visible del ScrollViewer
+            GeneralTransform transform = nextSet.TransformToAncestor(ScrollSets);
+            Rect bounds = transform.TransformBounds(new Rect(0, 0, nextSet.ActualWidth, nextSet.ActualHeight));
+
+            double margen = 20; // Un margen visual para que no quede aplastado contra las flechas
+
+            // Si el borde derecho del botón está más allá del ancho de la "cámara" (oculto a la derecha)
+            if (bounds.Right > ScrollSets.ViewportWidth)
+            {
+                // Empujamos el scroll exactamente la cantidad de píxeles que sobresalen
+                ScrollSets.ScrollToHorizontalOffset(ScrollSets.HorizontalOffset + (bounds.Right - ScrollSets.ViewportWidth) + margen);
+            }
+            // Si el borde izquierdo del botón está en negativo (oculto a la izquierda por dar la vuelta)
+            else if (bounds.Left < 0)
+            {
+                // Retraemos el scroll esa cantidad exacta
+                ScrollSets.ScrollToHorizontalOffset(ScrollSets.HorizontalOffset + bounds.Left - margen);
+            }
+        }
+        catch 
+        {
+            // Si por alguna razón la UI no ha terminado de enlazar los elementos, ignoramos el error
+        }
+    }), System.Windows.Threading.DispatcherPriority.ContextIdle);
+}
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            // Detectamos si la tecla presionada es la 'S'
+            if (e.Key == Key.S)
+            {
+                // Verificamos si TANTO 'Control' COMO 'Shift' están presionados al mismo tiempo
+                if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+                {
+                    SeleccionarSiguienteSet(); // Llamamos a la magia
+                    e.Handled = true;          // Le decimos a WPF que ya manejamos esta tecla
+                }
+            }
+
+            // Importante: Dejar que la ventana base procese las demás teclas
+            base.OnPreviewKeyDown(e);
         }
     }
 }

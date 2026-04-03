@@ -1,0 +1,299 @@
+{
+  "NombreWorkflow": "Mi Workspace",
+  "Carpetas": [
+    {
+      "Id": "dbc40aa9-6d58-4760-ab80-e3d3b0865c49",
+      "Nombre": "Set 1",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": "9a15036e-5264-480b-b061-904d0bca74e6"
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": "f20f183c-da72-42d2-b815-b15a1cc4192d"
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    },
+    {
+      "Id": "f8ce6b6f-806a-48c0-bb6a-0b2613a6f0ce",
+      "Nombre": "Set 2",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": "61c3154a-f911-4cb8-baa7-74076a4784ad"
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    },
+    {
+      "Id": "cdcb361b-299f-4a65-9cca-9de41d51de8b",
+      "Nombre": "Set 3",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    },
+    {
+      "Id": "56c10fb5-9962-4ead-aec2-538045f10695",
+      "Nombre": "Set 4",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    },
+    {
+      "Id": "d213ea36-3bf6-462d-b685-1c87390285a9",
+      "Nombre": "Set 5",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    },
+    {
+      "Id": "9dd75967-453f-483e-a3fe-f22be659e820",
+      "Nombre": "Set 6",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    },
+    {
+      "Id": "6037b149-1ff0-4c36-81d7-ca4a04258acf",
+      "Nombre": "Set 7",
+      "Slots": [
+        {
+          "HotKeyIndex": 1,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 2,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 3,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 4,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 5,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 6,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 7,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 8,
+          "ClipIdAsignado": ""
+        },
+        {
+          "HotKeyIndex": 9,
+          "ClipIdAsignado": ""
+        }
+      ]
+    }
+  ]
+}

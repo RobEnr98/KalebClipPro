@@ -131,6 +131,134 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Template" Value="{StaticResource SubmenuOscuroTemplate}"/>
         </Style>
+
+        <ItemsPanelTemplate x:Key="PanelVistaLista">
+            <VirtualizingStackPanel Orientation="Vertical"/>
+        </ItemsPanelTemplate>
+
+        <ItemsPanelTemplate x:Key="PanelVistaIconos">
+            <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+
+        <Style x:Key="ContainerVistaLista" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="15,0,15,10"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ContainerVistaIconos" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,15,15"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="Transparent">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="TemplateVistaIconos">
+            <Border x:Name="CardBorder" Width="180" Height="140" Background="{StaticResource TextCardBg}" CornerRadius="8" BorderThickness="1" BorderBrush="#1D2227" dd:DragDrop.DragSourceIgnore="True"> 
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Border x:Name="HeaderBg" Grid.Row="0" Background="#1A000000" CornerRadius="8,8,0,0" SnapsToDevicePixels="True">
+                        <Grid Margin="10,0">
+                            <Border x:Name="SlotBadge" Background="#33FFD700" BorderBrush="#FFD700" BorderThickness="1" CornerRadius="3" Height="18" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="6,0">
+                                <TextBlock Text="{Binding HotKeyIndex, StringFormat='Slot {0}'}" Foreground="#FFD700" FontSize="10" FontWeight="Bold" FontFamily="Consolas" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel x:Name="ActionButtons" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Button Style="{StaticResource SidebarIconButtonStyle}" Click="BtnCopiarSlot_Click" Width="20" Height="20" Margin="0,0,4,0"><Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" Fill="#5A6575" Stretch="Uniform" Height="10"/></Button>
+                                <Button Style="{StaticResource DeleteIconButtonStyle}" Click="BtnEliminarSlot_Click" Width="20" Height="20"><Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#5A6575" Stretch="Uniform" Height="10"/></Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="1" Margin="10">
+                        <TextBlock x:Name="TxtAppName" Text="{Binding Origen_App}" Foreground="#00BFA5" FontSize="9" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="0.6"/>
+                        <TextBlock x:Name="PlaceholderTxt" Text="(Vacío)" Foreground="#444444" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                        <TextBox x:Name="TxtContenido" Text="{Binding Contenido_Plano, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" FontSize="11" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
+                    </Grid>
+                </Grid>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding EsVacio}" Value="True">
+                    <Setter TargetName="CardBorder" Property="Background" Value="#0DFFFFFF"/>
+                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="#1AFFFFFF"/>
+                    <Setter TargetName="SlotBadge" Property="Background" Value="Transparent"/>
+                    <Setter TargetName="SlotBadge" Property="BorderBrush" Value="#33FFFFFF"/>
+                    <Setter TargetName="ActionButtons" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="PlaceholderTxt" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding EsVacio}" Value="False"><Setter TargetName="CardBorder" Property="BorderBrush" Value="#FFD700"/></DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TemplateVistaLista">
+            <Grid>
+                <Border x:Name="CardBorder" Background="{StaticResource TextCardBg}" CornerRadius="8" BorderThickness="1" BorderBrush="#1D2227" dd:DragDrop.DragSourceIgnore="True"> 
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="25"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <Border x:Name="HeaderBg" Grid.Row="0" Background="#1A000000" CornerRadius="8,8,0,0" Height="25" SnapsToDevicePixels="True">
+                            <Grid Margin="35,0,10,0">
+                                <Border x:Name="SlotBadge" Background="#33FFD700" BorderBrush="#FFD700" BorderThickness="1" CornerRadius="3" Height="18" HorizontalAlignment="Left" VerticalAlignment="Center" SnapsToDevicePixels="True">
+                                    <TextBlock x:Name="TxtSlotHeader" Text="{Binding HotKeyIndex, StringFormat='Slot {0}'}" Foreground="#FFD700" FontSize="10" FontWeight="Bold" FontFamily="Consolas" Margin="6,0" VerticalAlignment="Center" HorizontalAlignment="Center" SnapsToDevicePixels="True"/>
+                                </Border>
+                                <StackPanel x:Name="ActionButtons" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBlock x:Name="TxtAppName" Text="{Binding Origen_App}" Foreground="#5A6575" FontSize="9" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center" Opacity="0.8"/>
+                                    <Button Style="{StaticResource SidebarIconButtonStyle}" Click="BtnCopiarSlot_Click" Width="22" Height="22" Margin="0,0,2,0"><Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" Fill="#5A6575" Stretch="Uniform" Height="11"/></Button>
+                                    <Button Style="{StaticResource DeleteIconButtonStyle}" Click="BtnEliminarSlot_Click" Width="22" Height="22"><Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#5A6575" Stretch="Uniform" Height="11"/></Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Row="1">
+                            <TextBlock x:Name="PlaceholderTxt" Text="(Slot Vacío)" Foreground="#444444" FontStyle="Italic" FontFamily="Consolas" FontSize="12" Margin="14,10" Visibility="Collapsed" IsHitTestVisible="False"/>
+                            <TextBox x:Name="TxtContenido" Text="{Binding Contenido_Plano, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="{Binding AlturaVisual}" Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" Padding="12,8,12,5" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto"/>
+                        </Grid>
+                        <Thumb x:Name="ResizerThumb" Grid.Row="2" Cursor="SizeNS" DragDelta="BlockResizer_DragDelta" ToolTip="Ajustar altura" Background="Transparent" Height="12">
+                            <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent" VerticalAlignment="Stretch"><Border Height="3" Width="30" Background="#3A444D" CornerRadius="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4"/></Border></ControlTemplate></Thumb.Template>
+                        </Thumb>
+                    </Grid>
+                </Border>
+                <Border x:Name="DragGrip" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="25" Background="Transparent" Cursor="SizeNS" ToolTip="Arrastrar para mover">
+                    <Path Data="M9,3H11V5H9V3M13,3H15V5H13V3M9,7H11V9H9V7M13,7H15V9H13V7M9,11H11V13H9V11M13,11H15V13H13V11M9,15H11V17H9V15M13,15H15V17H13V15M9,19H11V21H9V19M13,19H15V21H13V19Z" Fill="#5A6575" Stretch="Uniform" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding EsVacio}" Value="True">
+                    <Setter TargetName="CardBorder" Property="Background" Value="#0DFFFFFF"/>
+                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="#1AFFFFFF"/>
+                    <Setter TargetName="HeaderBg" Property="Background" Value="#0A000000"/>
+                    <Setter TargetName="SlotBadge" Property="Background" Value="Transparent"/>
+                    <Setter TargetName="SlotBadge" Property="BorderBrush" Value="#33FFFFFF"/>
+                    <Setter TargetName="TxtSlotHeader" Property="Foreground" Value="#555555"/>
+                    <Setter TargetName="ActionButtons" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="DragGrip" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="ResizerThumb" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="PlaceholderTxt" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding EsVacio}" Value="False"><Setter TargetName="CardBorder" Property="BorderBrush" Value="#FFD700"/></DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions><Condition Binding="{Binding EsVacio}" Value="False"/><Condition Binding="{Binding Contenido_Plano, Converter={StaticResource ClipCategoryConverter}}" Value="Code"/></MultiDataTrigger.Conditions>
+                    <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource CodeCardBg}"/>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions><Condition Binding="{Binding EsVacio}" Value="False"/><Condition Binding="{Binding Contenido_Plano, Converter={StaticResource ClipCategoryConverter}}" Value="Url"/></MultiDataTrigger.Conditions>
+                    <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource UrlCardBg}"/>
+                </MultiDataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Margin="0">
@@ -522,192 +650,131 @@
 
                             <TextBlock Grid.Column="0" Text="WORKFLOW:" Foreground="#5A6575" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,15,0"/>
 
-                            <Border Grid.Column="1" Background="#2D333B" CornerRadius="15" Padding="2" HorizontalAlignment="Left">
-                                <StackPanel Orientation="Horizontal">
-                                    
-                                    <StackPanel x:Name="ContenedorSets" Orientation="Horizontal">
-                                        <RadioButton Content="Set A" Tag="A" IsChecked="True" Click="BtnCambiarSet_Click" Style="{StaticResource SegmentedButtonStyle}"/>
-                                        <RadioButton Content="Set B" Tag="B" Click="BtnCambiarSet_Click" Style="{StaticResource SegmentedButtonStyle}"/>
-                                        <RadioButton Content="Set C" Tag="C" Click="BtnCambiarSet_Click" Style="{StaticResource SegmentedButtonStyle}"/>
-                                    </StackPanel>
-                                    
-                                    <Border Width="1" Background="#4A535F" Margin="6,4" CornerRadius="0.5"/>
-                                    
-                                    <Button x:Name="BtnAgregarSet" Click="BtnAgregarSet_Click" Style="{StaticResource AddSetButtonStyle}" ToolTip="Añadir nuevo Set"/>
-                                    <Button x:Name="BtnQuitarSet" Click="BtnQuitarSet_Click" Style="{StaticResource RemoveSetButtonStyle}" ToolTip="Quitar el último Set"/>
-                                    
-                                </StackPanel>
+                            <Border Grid.Column="1" Background="#2D333B" CornerRadius="15" Padding="2" HorizontalAlignment="Left" Margin="0,0,15,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="*"/>    <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="Auto"/> <ColumnDefinition Width="Auto"/> </Grid.ColumnDefinitions>
+
+                                    <RepeatButton Grid.Column="0" x:Name="BtnScrollIzq" Click="BtnScrollIzq_Click" Delay="150" Interval="40" Width="18" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Desplazar a la izquierda">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border x:Name="Bg" Background="Transparent" CornerRadius="13,0,0,13">
+                                                    <Path x:Name="Icon" Data="M14,7L9,12L14,17V7Z" Fill="#5A6575" Stretch="Uniform" Height="8"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bg" Property="Background" Value="#3A444D"/>
+                                                        <Setter TargetName="Icon" Property="Fill" Value="White"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+
+                                    <ScrollViewer Grid.Column="1" x:Name="ScrollSets" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly">
+                                        <StackPanel x:Name="ContenedorSets" Orientation="Horizontal">
+                                            <RadioButton Content="Set 1" Tag="1" IsChecked="True" Click="BtnCambiarSet_Click" Style="{StaticResource SegmentedButtonStyle}"/>
+                                            <RadioButton Content="Set 2" Tag="2" Click="BtnCambiarSet_Click" Style="{StaticResource SegmentedButtonStyle}"/>
+                                        </StackPanel>
+                                    </ScrollViewer>
+
+                                    <RepeatButton Grid.Column="2" x:Name="BtnScrollDer" Click="BtnScrollDer_Click" Delay="150" Interval="40" Width="18" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Desplazar a la derecha">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border x:Name="Bg" Background="Transparent" CornerRadius="0">
+                                                    <Path x:Name="Icon" Data="M10,17L15,12L10,7V17Z" Fill="#5A6575" Stretch="Uniform" Height="8"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bg" Property="Background" Value="#3A444D"/>
+                                                        <Setter TargetName="Icon" Property="Fill" Value="White"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+
+                                    <Border Grid.Column="3" Width="1" Background="#4A535F" Margin="4,4" CornerRadius="0.5"/>
+                                    <Button Grid.Column="4" x:Name="BtnAgregarSet" Click="BtnAgregarSet_Click" Style="{StaticResource AddSetButtonStyle}" ToolTip="Añadir nuevo Set"/>
+                                    <Button Grid.Column="5" x:Name="BtnQuitarSet" Click="BtnQuitarSet_Click" Style="{StaticResource RemoveSetButtonStyle}" ToolTip="Quitar el último Set"/>
+                                </Grid>
                             </Border>
 
-                            <Button x:Name="BtnLimpiar" Grid.Column="2" Click="BtnLimpiarRecolector_Click" Style="{StaticResource CleanSlotsButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                
+                                <Border Background="#2D333B" CornerRadius="4" Padding="2" Margin="0,0,15,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton x:Name="BtnVistaLista" GroupName="GrupoVistas" Content="≡ Lista" IsChecked="True" Style="{StaticResource SegmentedButtonStyle}" FontSize="10" Padding="8,4"/>
+                                        <RadioButton x:Name="BtnVistaIconos" GroupName="GrupoVistas" Content="⊞ Iconos" Style="{StaticResource SegmentedButtonStyle}" FontSize="10" Padding="8,4"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button x:Name="BtnGuardarWorkflow" ToolTip="Forzar guardado del Workflow" 
+                                        Foreground="White" Margin="0,0,8,0" Cursor="Hand" FontWeight="SemiBold"
+                                        FocusVisualStyle="{x:Null}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bg" Background="#00ADB5" CornerRadius="4" Padding="10,4">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="Guardar"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bg" Property="Background" Value="#00C4CC"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <Button x:Name="BtnLimpiar" Click="BtnLimpiarRecolector_Click" Style="{StaticResource CleanSlotsButtonStyle}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            </StackPanel>
                         </Grid>
 
                         <ListBox x:Name="ListaRecolector" Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0,0,0,15" 
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                 HorizontalContentAlignment="Stretch" FocusVisualStyle="{x:Null}"
+                                 FocusVisualStyle="{x:Null}"
+                                 PreviewMouseWheel="ListaRecolector_PreviewMouseWheel"
                                  dd:DragDrop.IsDragSource="True"
                                  dd:DragDrop.IsDropTarget="True"
                                  dd:DragDrop.DropHandler="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                                  dd:DragDrop.UseDefaultDragAdorner="False">
+                            
+                            <ListBox.LayoutTransform>
+                                <ScaleTransform x:Name="ZoomTransform" ScaleX="1.0" ScaleY="1.0"/>
+                            </ListBox.LayoutTransform>
+
                             <dd:DragDrop.DragAdornerTemplate>
-                                    <DataTemplate>
-                                        <Grid Width="{Binding ActualWidth, Source={x:Reference ListaRecolector}}">
-                                            
-                                            <Border Margin="15,0,15,10"
-                                                    Background="#252B32" 
-                                                    BorderBrush="#FFD700" 
-                                                    BorderThickness="1" 
-                                                    CornerRadius="8" 
-                                                    Opacity="0.8" 
-                                                    Padding="12"
-                                                    SnapsToDevicePixels="True">
-                                                
-                                                <Grid>
-                                                    <StackPanel>
-                                                        <Border Background="#33FFD700" BorderBrush="#FFD700" BorderThickness="1" CornerRadius="3" HorizontalAlignment="Left" Padding="5,2" Margin="0,0,0,8">
-                                                            <TextBlock Text="{Binding HotKeyIndex, StringFormat='Moviendo Slot {0}...'}" Foreground="#FFD700" FontSize="10" FontWeight="Bold" FontFamily="Consolas"/>
-                                                        </Border>
-                                                        
-                                                        <TextBlock Text="{Binding Contenido_Plano}" 
-                                                                   Foreground="#E8ECEF" FontSize="11" FontFamily="Consolas"
-                                                                   MaxHeight="32" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                                                    </StackPanel>
-                                                    
-                                                    <Path Data="M9,3H11V5H9V3M13,3H15V5H13V3M9,7H11V9H9V7M13,7H15V9H13V7M9,11H11V13H9V11M13,11H15V13H13V11M9,15H11V17H9V15M13,15H15V17H13V15M9,19H11V21H9V19M13,19H15V21H13V19Z" 
-                                                          Fill="#33FFD700" Stretch="Uniform" Height="14" HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0.5"/>
-                                                </Grid>
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </dd:DragDrop.DragAdornerTemplate>
-
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Setter Property="Padding" Value="15,0,15,10"/>
-                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListBoxItem">
-                                                <Border Padding="{TemplateBinding Padding}" Background="Transparent">
-                                                    <ContentPresenter/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-
-                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Border x:Name="CardBorder" Background="{StaticResource TextCardBg}" CornerRadius="8" BorderThickness="1" BorderBrush="#1D2227" dd:DragDrop.DragSourceIgnore="True"> 
+                                    <Grid Width="{Binding ActualWidth, Source={x:Reference ListaRecolector}}">
+                                        <Border Margin="15,0,15,10" Background="#252B32" BorderBrush="#FFD700" BorderThickness="1" CornerRadius="8" Opacity="0.8" Padding="12" SnapsToDevicePixels="True">
                                             <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="25"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <Border x:Name="HeaderBg" Grid.Row="0" Background="#1A000000" CornerRadius="8,8,0,0" Height="25" SnapsToDevicePixels="True">
-                                                    <Grid Margin="35,0,10,0">
-                                                        
-                                                        <Border x:Name="SlotBadge" Background="#33FFD700" 
-                                                                BorderBrush="#FFD700" BorderThickness="1" 
-                                                                CornerRadius="3" Height="18" HorizontalAlignment="Left" 
-                                                                VerticalAlignment="Center" SnapsToDevicePixels="True">
-                                                            
-                                                            <TextBlock x:Name="TxtSlotHeader" Text="{Binding HotKeyIndex, StringFormat='Slot {0}'}" 
-                                                                       Foreground="#FFD700" FontSize="10" FontWeight="Bold" 
-                                                                       FontFamily="Consolas" Margin="6,0" VerticalAlignment="Center" 
-                                                                       HorizontalAlignment="Center" SnapsToDevicePixels="True"/>
-                                                        </Border>
-
-                                                        <StackPanel x:Name="ActionButtons" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                                            <TextBlock x:Name="TxtAppName" Text="{Binding Origen_App}" Foreground="#5A6575" FontSize="9" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Center" Opacity="0.8"/>
-                                                            <Button Style="{StaticResource SidebarIconButtonStyle}" Click="BtnCopiarSlot_Click" Width="22" Height="22" Margin="0,0,2,0">
-                                                                <Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" Fill="#5A6575" Stretch="Uniform" Height="11"/>
-                                                            </Button>
-                                                            <Button Style="{StaticResource DeleteIconButtonStyle}" Click="BtnEliminarSlot_Click" Width="22" Height="22">
-                                                                <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#5A6575" Stretch="Uniform" Height="11"/>
-                                                            </Button>
-                                                        </StackPanel>
-                                                    </Grid>
-                                                </Border>
-
-                                                <Grid Grid.Row="1">
-                                                    <TextBlock x:Name="PlaceholderTxt" Text="(Slot Vacío)" 
-                                                               Foreground="#444444" FontStyle="Italic" FontFamily="Consolas" 
-                                                               FontSize="12" Margin="14,10" Visibility="Collapsed" IsHitTestVisible="False"/>
-                                                    
-                                                    <TextBox x:Name="TxtContenido" Text="{Binding Contenido_Plano, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                                 Height="{Binding AlturaVisual}" 
-                                                                 Background="Transparent" Foreground="{StaticResource TextMain}" BorderThickness="0" 
-                                                                 Padding="12,8,12,5" TextWrapping="Wrap" AcceptsReturn="True" 
-                                                                 FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto"/>
-                                                </Grid>
-
-                                                <Thumb x:Name="ResizerThumb" Grid.Row="2" Cursor="SizeNS" DragDelta="BlockResizer_DragDelta" ToolTip="Ajustar altura" Background="Transparent" Height="12">
-                                                    <Thumb.Template>
-                                                        <ControlTemplate TargetType="Thumb">
-                                                            <Border Background="Transparent" VerticalAlignment="Stretch">
-                                                                <Border Height="3" Width="30" Background="#3A444D" CornerRadius="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Thumb.Template>
-                                                </Thumb>
+                                                <StackPanel>
+                                                    <Border Background="#33FFD700" BorderBrush="#FFD700" BorderThickness="1" CornerRadius="3" HorizontalAlignment="Left" Padding="5,2" Margin="0,0,0,8">
+                                                        <TextBlock Text="{Binding HotKeyIndex, StringFormat='Moviendo Slot {0}...'}" Foreground="#FFD700" FontSize="10" FontWeight="Bold" FontFamily="Consolas"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Contenido_Plano}" Foreground="#E8ECEF" FontSize="11" FontFamily="Consolas" MaxHeight="32" TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                                </StackPanel>
                                             </Grid>
                                         </Border>
-
-                                        <Border x:Name="DragGrip" HorizontalAlignment="Left" VerticalAlignment="Top" 
-                                                Width="30" Height="25" Background="Transparent" Cursor="SizeNS" ToolTip="Arrastrar para mover">
-                                            <Path Data="M9,3H11V5H9V3M13,3H15V5H13V3M9,7H11V9H9V7M13,7H15V9H13V7M9,11H11V13H9V11M13,11H15V13H13V11M9,15H11V17H9V15M13,15H15V17H13V15M9,19H11V21H9V19M13,19H15V21H13V19Z" 
-                                                  Fill="#5A6575" Stretch="Uniform" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
                                     </Grid>
-
-                                    <DataTemplate.Triggers>
-                                        
-                                        <DataTrigger Binding="{Binding EsVacio}" Value="True">
-                                            <Setter TargetName="CardBorder" Property="Background" Value="#0DFFFFFF"/>
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#1AFFFFFF"/>
-                                            <Setter TargetName="HeaderBg" Property="Background" Value="#0A000000"/>
-                                            
-                                            <Setter TargetName="SlotBadge" Property="Background" Value="Transparent"/>
-                                            <Setter TargetName="SlotBadge" Property="BorderBrush" Value="#33FFFFFF"/>
-                                            <Setter TargetName="TxtSlotHeader" Property="Foreground" Value="#555555"/>
-                                            
-                                            <Setter TargetName="ActionButtons" Property="Visibility" Value="Collapsed"/>
-                                            <Setter TargetName="DragGrip" Property="Visibility" Value="Collapsed"/>
-                                            <Setter TargetName="ResizerThumb" Property="Visibility" Value="Collapsed"/>
-                                            
-                                            <Setter TargetName="PlaceholderTxt" Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-
-                                        <DataTrigger Binding="{Binding EsVacio}" Value="False">
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#FFD700"/>
-                                        </DataTrigger>
-
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding EsVacio}" Value="False"/>
-                                                <Condition Binding="{Binding Contenido_Plano, Converter={StaticResource ClipCategoryConverter}}" Value="Code"/>
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource CodeCardBg}"/>
-                                        </MultiDataTrigger>
-                                        
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding EsVacio}" Value="False"/>
-                                                <Condition Binding="{Binding Contenido_Plano, Converter={StaticResource ClipCategoryConverter}}" Value="Url"/>
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource UrlCardBg}"/>
-                                        </MultiDataTrigger>
-
-                                    </DataTemplate.Triggers>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
+                            </dd:DragDrop.DragAdornerTemplate>
 
+                            <ListBox.Style>
+                                <Style TargetType="ListBox">
+                                    <Setter Property="ItemTemplate" Value="{StaticResource TemplateVistaLista}"/>
+                                    <Setter Property="ItemsPanel" Value="{StaticResource PanelVistaLista}"/>
+                                    <Setter Property="ItemContainerStyle" Value="{StaticResource ContainerVistaLista}"/>
+                                    
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, ElementName=BtnVistaIconos}" Value="True">
+                                            <Setter Property="ItemTemplate" Value="{StaticResource TemplateVistaIconos}"/>
+                                            <Setter Property="ItemsPanel" Value="{StaticResource PanelVistaIconos}"/>
+                                            <Setter Property="ItemContainerStyle" Value="{StaticResource ContainerVistaIconos}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.Style>
                         </ListBox>
                     </Grid>
                 </Grid>

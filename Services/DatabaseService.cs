@@ -268,7 +268,7 @@ namespace KalebClipPro.Services
         {
             try
             {
-                using (var connection = new SqliteConnection(_conn)) // Usamos tu variable _conn oficial
+                using (var connection = new SqliteConnection(_conn)) 
                 {
                     connection.Open();
                     
@@ -284,6 +284,41 @@ namespace KalebClipPro.Services
                 }
             }
             catch { /* Manejo de errores silencioso */ }
+        }
+
+        // =========================================================================
+        // NUEVO: OBTENER CLIP POR ID (Para los slots del Workflow V2)
+        // =========================================================================
+        public ClipData? ObtenerClipPorId(string idClip)
+        {
+            using (var c = new SqliteConnection(_conn))
+            {
+                c.Open();
+                var cmd = c.CreateCommand();
+                
+                cmd.CommandText = @"
+                    SELECT Contenido_Plano, Origen_App, Fecha_Creacion, ID_Clip, HotKeyIndex, WorkspaceID
+                    FROM Clips_Historial 
+                    WHERE ID_Clip = $id LIMIT 1";
+
+                cmd.Parameters.AddWithValue("$id", idClip);
+
+                using (var r = cmd.ExecuteReader())
+                {
+                    if (r.Read())
+                    {
+                        return new ClipData {
+                            Contenido_Plano = r.GetString(0),
+                            Origen_App = r.IsDBNull(1) ? "App" : r.GetString(1),
+                            Fecha_Creacion = r.GetDateTime(2),
+                            Guid_Clip = r.GetString(3),
+                            HotKeyIndex = r.IsDBNull(4) ? 0 : r.GetInt32(4),
+                            WorkspaceID = r.IsDBNull(5) ? 1 : r.GetInt32(5)
+                        };
+                    }
+                }
+            }
+            return null; // Retorna null si ese ID ya no existe en la BD
         }
     }
 }

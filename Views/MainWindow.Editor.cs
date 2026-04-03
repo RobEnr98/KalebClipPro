@@ -35,7 +35,7 @@ namespace KalebClipPro
             // 1. Guardar y ocultar el viejo
             if (e.RemovedItems.Count > 0 && e.RemovedItems[0] is ClipData clipViejo)
             {
-                GuardarEstadoSeguro(clipViejo, _editorActual);
+                GuardarEstadoSeguro(clipViejo, _editorActual!);
                 OcultarEditorActual();
             }
 

@@ -1,11 +1,29 @@
+using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace KalebClipPro.Models
 {
     public class WorkflowData
     {
         public string NombreWorkflow { get; set; } = "Mi Workspace";
-        // Diccionario central. Clave: Letra del Set ("A", "B"). Valor: Lista de 9 Clips
-        public Dictionary<string, List<ClipData>> Sets { get; set; } = new Dictionary<string, List<ClipData>>();
+        public List<WorkflowFolder> Carpetas { get; set; } = new List<WorkflowFolder>();
+    }
+
+    public class WorkflowFolder
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Nombre { get; set; } = "Nueva Carpeta";
+        public List<SlotData> Slots { get; set; } = new List<SlotData>();
+    }
+
+    public class SlotData
+    {
+        public int HotKeyIndex { get; set; }
+        
+        public string ClipIdAsignado { get; set; } = ""; 
+
+        [JsonIgnore]
+        public ClipData? ClipCargado { get; set; } 
     }
 }

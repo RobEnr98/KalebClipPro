@@ -8,7 +8,8 @@ namespace KalebClipPro.Services
 {
     public class WorkflowService
     {
-        private readonly string rutaArchivoGuardado = "KalebWorkflows.json";
+        // Usamos un nuevo archivo v2 para evitar choques con el formato viejo
+        private readonly string rutaArchivoGuardado = "KalebWorkflows_v2.json"; 
 
         public WorkflowData CargarWorkflowDesdeDisco()
         {
@@ -18,20 +19,19 @@ namespace KalebClipPro.Services
                 {
                     string json = File.ReadAllText(rutaArchivoGuardado);
                     var data = JsonSerializer.Deserialize<WorkflowData>(json);
-                    if (data != null && data.Sets.Count > 0)
+                    
+                    if (data != null && data.Carpetas.Count > 0)
                         return data;
                 }
             }
-            catch { /* Si falla, creará uno nuevo abajo */ }
+            catch { /* Si falla o el JSON está corrupto, creará uno nuevo abajo */ }
 
-            // Si está vacío o es la primera vez, creamos los sets A, B y C por defecto
-            var workflowVacio = new WorkflowData();
-            workflowVacio.Sets.Add("A", CrearListaVaciaDe9Slots());
-            workflowVacio.Sets.Add("B", CrearListaVaciaDe9Slots());
-            workflowVacio.Sets.Add("C", CrearListaVaciaDe9Slots());
-            GuardarWorkflowEnDisco(workflowVacio);
+            // Si es la primera vez, creamos una carpeta "General" por defecto
+            var workflowPorDefecto = new WorkflowData();
+            workflowPorDefecto.Carpetas.Add(CrearCarpetaVacia("General"));
+            GuardarWorkflowEnDisco(workflowPorDefecto);
             
-            return workflowVacio;
+            return workflowPorDefecto;
         }
 
         public void GuardarWorkflowEnDisco(WorkflowData workflow)
@@ -48,14 +48,17 @@ namespace KalebClipPro.Services
             }
         }
 
-        public List<ClipData> CrearListaVaciaDe9Slots()
+        public WorkflowFolder CrearCarpetaVacia(string nombre)
         {
-            var lista = new List<ClipData>();
+            var carpeta = new WorkflowFolder { Nombre = nombre };
+            
             for (int i = 1; i <= 9; i++)
             {
-                lista.Add(new ClipData { HotKeyIndex = i, Contenido_Plano = "", Origen_App = "", AlturaVisual = 38 });
+                // Ahora los slots nacen vacíos y listos para recibir un Guid_Clip
+                carpeta.Slots.Add(new SlotData { HotKeyIndex = i, ClipIdAsignado = "" });
             }
-            return lista;
+            
+            return carpeta;
         }
     }
 }
